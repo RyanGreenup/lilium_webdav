@@ -1,0 +1,25 @@
+[package]
+name = "webdav_server"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0"
+base64 = "0.22"
+bytes = "1.9"
+clap = { version = "4.5", features = ["derive"] }
+dav-server = { version = "0.8.0", features = ["hyper"] }
+headers = "0.4"
+futures-util = "0.3"
+http = "1.2"
+http-body-util = "0.1"
+hyper = { version = "1.5", features = ["server", "http1"] }
+hyper-util = { version = "0.1", features = ["tokio"] }
+percent-encoding = "2.3"
+rusqlite = { version = "0.37.0", features = ["bundled"] }
+subtle = "2.6"
+tokio = { version = "1.42", features = ["rt-multi-thread", "macros", "net"] }
+uuid = { version = "1.11", features = ["v4"] }
+
+[dev-dependencies]
+clippy = "0.0.302"

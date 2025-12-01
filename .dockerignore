@@ -1,0 +1,10 @@
+target/
+.git/
+*.db
+*.sqlite
+tests/
+*.md
+justfile
+*.sh
+*.sql
+!schema.sql

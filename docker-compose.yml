@@ -1,0 +1,20 @@
+services:
+  webdav:
+    build: .
+    container_name: webdav-server
+    ports:
+      - "4918:4918"
+    volumes:
+      - webdav-data:/data
+    environment:
+      - WEBDAV_HOST=0.0.0.0
+      - WEBDAV_PORT=4918
+      - WEBDAV_DATABASE=/data/notes.db
+      - WEBDAV_USERNAME=admin
+      - WEBDAV_PASSWORD=changeme
+      # Optional: specify a user_id if different from username
+      # - WEBDAV_USER_ID=custom_user_id
+    restart: unless-stopped
+
+volumes:
+  webdav-data:

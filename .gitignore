@@ -1,3 +1,4 @@
 target
 data
 webdav-data
+.env

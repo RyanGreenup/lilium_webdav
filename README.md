@@ -181,6 +181,40 @@ curl -u username:password -T note.md http://localhost:4918/FolderName/note.md
 
 **Note:** Folder creation is not supported. Files can only be created within existing folders in the database.
 
+## davfs2 Write Delay
+
+When using davfs2 to mount the WebDAV server, writes may not appear in the database immediately. By default, davfs2 buffers writes for 10 seconds before uploading them to the server (`delay_upload 10`).
+
+### Forcing Immediate Writes
+
+To force an immediate upload after writing a file, run `sync`:
+
+```bash
+echo "New content" > ~/Notes/myfile.md && sync
+```
+
+### Configuring davfs2 for Immediate Uploads
+
+To disable the upload delay entirely, edit your davfs2 configuration:
+
+**System-wide** (`/etc/davfs2/davfs2.conf`):
+```conf
+delay_upload 0
+```
+
+**Per-user** (`~/.davfs2/davfs2.conf`):
+```conf
+delay_upload 0
+```
+
+**Per-mount point** (`~/.davfs2/davfs2.conf`):
+```conf
+[/home/username/Notes]
+delay_upload 0
+```
+
+After changing the configuration, remount the filesystem for the changes to take effect.
+
 ## Database Schema
 
 The server expects tables matching this schema:

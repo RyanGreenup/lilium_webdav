@@ -16,6 +16,7 @@ http-body-util = "0.1"
 hyper = { version = "1.5", features = ["server", "http1"] }
 hyper-util = { version = "0.1", features = ["tokio"] }
 percent-encoding = "2.3"
+chrono = { version = "0.4", default-features = false, features = ["std", "clock"] }
 rusqlite = { version = "0.37.0", features = ["bundled"] }
 subtle = "2.6"
 tokio = { version = "1.42", features = ["rt-multi-thread", "macros", "net"] }

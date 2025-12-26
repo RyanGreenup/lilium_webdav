@@ -657,32 +657,9 @@ impl SqliteFs {
     }
 }
 
-/// Get current timestamp in SQLite format
+/// Get current timestamp in SQLite format (UTC)
 fn current_timestamp() -> String {
-    use std::time::{SystemTime, UNIX_EPOCH};
-
-    let duration = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap();
-
-    let secs = duration.as_secs();
-    let days = secs / 86400;
-    let remaining = secs % 86400;
-    let hours = remaining / 3600;
-    let remaining = remaining % 3600;
-    let minutes = remaining / 60;
-    let seconds = remaining % 60;
-
-    // Approximate date calculation (not accounting for leap years properly)
-    let year = 1970 + (days / 365);
-    let day_of_year = days % 365;
-    let month = 1 + (day_of_year / 30);
-    let day = 1 + (day_of_year % 30);
-
-    format!(
-        "{:04}-{:02}-{:02} {:02}:{:02}:{:02}",
-        year, month, day, hours, minutes, seconds
-    )
+    chrono::Utc::now().format("%Y-%m-%d %H:%M:%S").to_string()
 }
 
 enum ResolvedPath {

@@ -802,8 +802,8 @@ impl DavFileSystem for SqliteFs {
 
                     // Return writable or read-only based on options
                     if options.write || options.append {
-                        eprintln!("[OPEN] Returning writable file");
-                        Ok(Box::new(SqliteDavFile::new_writable(note, fs, parent_id)) as Box<dyn DavFile>)
+                        eprintln!("[OPEN] Returning writable file (truncate={})", options.truncate);
+                        Ok(Box::new(SqliteDavFile::new_writable(note, fs, parent_id, options.truncate)) as Box<dyn DavFile>)
                     } else {
                         eprintln!("[OPEN] Returning read-only file");
                         Ok(Box::new(SqliteDavFile::new(note, fs)) as Box<dyn DavFile>)
@@ -864,7 +864,7 @@ impl DavFileSystem for SqliteFs {
                     )?;
                     eprintln!("[OPEN] Note created with id: {}", note_id);
 
-                    // Return a writable file
+                    // Return a writable file (always truncate for new files)
                     let note = NoteData {
                         id: note_id,
                         title,
@@ -874,7 +874,7 @@ impl DavFileSystem for SqliteFs {
                         updated_at: current_timestamp(),
                     };
 
-                    Ok(Box::new(SqliteDavFile::new_writable(note, fs, parent_id)) as Box<dyn DavFile>)
+                    Ok(Box::new(SqliteDavFile::new_writable(note, fs, parent_id, true)) as Box<dyn DavFile>)
                 }
                 Err(e) => {
                     eprintln!("[OPEN] Error resolving path: {:?}", e);

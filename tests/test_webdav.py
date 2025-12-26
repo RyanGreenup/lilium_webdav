@@ -162,6 +162,76 @@ class TestNoteCRUD(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.text, updated_content)
 
+    def test_03a_update_note_shorter_content_truncates(self):
+        """Update a note with shorter content - must fully replace, not leave old bytes.
+
+        This is a regression test for a bug where updating a note with shorter
+        content would leave the old content's trailing bytes in the database.
+        For example, updating "AAAAAAAAAA" (10 chars) with "BBB" (3 chars) would
+        incorrectly result in "BBBAAAAAAA" instead of just "BBB".
+
+        The fix requires proper handling of the truncate flag when opening files
+        for writing.
+        """
+        path = "/truncation_test.md"
+
+        # Create a note with long content
+        long_content = "A" * 100  # 100 A's
+        resp = self.client.put(path, long_content)
+        self.assertIn(resp.status_code, [200, 201, 204])
+
+        # Verify initial content
+        resp = self.client.get(path)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.text, long_content)
+        self.assertEqual(len(resp.text), 100)
+
+        # Update with shorter content
+        short_content = "BBB"  # Only 3 chars
+        resp = self.client.put(path, short_content)
+        self.assertIn(resp.status_code, [200, 201, 204])
+
+        # Immediately read back - should be exactly the short content
+        resp = self.client.get(path)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.text, short_content,
+            f"Content should be exactly '{short_content}', not '{resp.text}'. "
+            "Old content bytes may not have been truncated.")
+        self.assertEqual(len(resp.text), 3,
+            f"Content length should be 3, got {len(resp.text)}. "
+            "This indicates the truncate flag is not being handled correctly.")
+
+        # Clean up
+        self.client.delete(path)
+
+    def test_03b_update_note_immediate_persistence(self):
+        """Verify that updates are immediately persisted to the database.
+
+        This test ensures there's no delay between a PUT request completing
+        and the content being available via GET. The update should be
+        synchronous - when PUT returns success, the data must be readable.
+        """
+        path = "/immediate_persistence_test.md"
+
+        # Create initial note
+        self.client.put(path, "initial")
+
+        # Perform multiple rapid updates and verify each is immediately readable
+        for i in range(5):
+            new_content = f"update_{i}_" + "x" * 50
+            resp = self.client.put(path, new_content)
+            self.assertIn(resp.status_code, [200, 201, 204])
+
+            # Immediately read - should have the new content, not old
+            resp = self.client.get(path)
+            self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp.text, new_content,
+                f"Iteration {i}: Expected immediate update, but got stale content. "
+                "This may indicate writes are being buffered instead of flushed.")
+
+        # Clean up
+        self.client.delete(path)
+
     def test_04_delete_note(self):
         """Delete a note via DELETE."""
         # Create a note to delete
@@ -529,6 +599,8 @@ class TestCleanup(unittest.TestCase):
             "/test_create.md",
             "/test_read.md",
             "/test_update.md",
+            "/truncation_test.md",
+            "/immediate_persistence_test.md",
             "/TestFolder",
             "/ListTestFolder",
             "/NoteTestFolder",

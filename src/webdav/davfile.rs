@@ -37,8 +37,14 @@ impl SqliteDavFile {
         }
     }
 
-    pub fn new_writable(note: NoteData, fs: SqliteFs, parent_id: Option<String>) -> Self {
-        let content = note.content.clone().into_bytes();
+    pub fn new_writable(note: NoteData, fs: SqliteFs, parent_id: Option<String>, truncate: bool) -> Self {
+        // If truncate is set, start with empty content (for PUT requests)
+        // Otherwise, keep existing content (for append/modify operations)
+        let content = if truncate {
+            Vec::new()
+        } else {
+            note.content.clone().into_bytes()
+        };
         Self {
             note,
             cursor: Cursor::new(content),

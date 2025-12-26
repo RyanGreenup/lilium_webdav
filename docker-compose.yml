@@ -3,18 +3,19 @@ services:
     build: .
     container_name: webdav-server
     ports:
-      - "4918:4918"
+      - "0.0.0.0:4918:4918"
     volumes:
-      - webdav-data:/data
+      # TODO change this
+      - ./path/to/data:/data
     environment:
-      - WEBDAV_HOST=0.0.0.0
-      - WEBDAV_PORT=4918
+      # Runtime
       - WEBDAV_DATABASE=/data/notes.db
-      - WEBDAV_USERNAME=admin
-      - WEBDAV_PASSWORD=changeme
-      # Optional: specify a user_id if different from username
-      # - WEBDAV_USER_ID=custom_user_id
+      - WEBDAV_PORT=4918
+
+      # TODO populate .env file
+      # Credentials
+      - WEBDAV_USERNAME=${WEBDAV_USERNAME}
+      - WEBDAV_PASSWORD=${WEBDAV_PASSWORD}
+      - WEBDAV_USER_ID=${WEBDAV_USER_ID}
     restart: unless-stopped
 
-volumes:
-  webdav-data:

@@ -19,6 +19,12 @@ Then on the client something like this
 ```
 
 doas umount -l /home/ryan/Downloads/testing_webdav; doas mount -t davfs -o username=ryan http://localhost:4918 ~/Downloads/testing_webdav
+```
+
+If the mount is busy and won't unmount, kill processes using it first:
+
+```
+fuser -km ~/Downloads/testing_webdav && doas umount ~/Downloads/testing_webdav
 
 ```
 

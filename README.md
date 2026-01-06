@@ -35,6 +35,9 @@ or
     ```sh
     get ent group davfs2 || sudo groupadd davfs2
     usermod -aG davfs2 $USER
+        
+    get ent group network || sudo groupadd network
+    usermod -aG network $USER
     ```
 
 2. Create credentials
@@ -220,6 +223,64 @@ delay_upload 0
 ```
 
 After changing the configuration, remount the filesystem for the changes to take effect.
+
+## Podman Quadlet
+
+You can run the WebDAV server as a systemd service using Podman Quadlets.
+
+### Build the Image
+
+```bash
+podman build -t webdav-server .
+```
+
+### Create the Quadlet
+
+Create `~/.config/containers/systemd/webdav.container` (user) or `/etc/containers/systemd/webdav.container` (system):
+
+```ini
+[Unit]
+Description=WebDAV Server for SQLite Notes
+After=local-fs.target
+
+[Container]
+Image=localhost/webdav-server
+ContainerName=webdav-server
+PublishPort=4918:4918
+Volume=/path/to/data:/data:Z
+Environment=WEBDAV_DATABASE=/data/notes.db
+Environment=WEBDAV_USERNAME=admin
+Environment=WEBDAV_PASSWORD=changeme
+# Optional: map login to a different database user_id
+# Environment=WEBDAV_USER_ID=your-user-id
+
+[Service]
+Restart=unless-stopped
+
+[Install]
+WantedBy=default.target
+```
+
+### Enable and Start
+
+```bash
+# Reload systemd to pick up the new quadlet
+systemctl --user daemon-reload
+
+# Start the service
+systemctl --user start webdav
+
+# Enable on boot
+systemctl --user enable webdav
+
+# Check status
+systemctl --user status webdav
+
+# View logs
+journalctl --user -u webdav -f
+```
+
+For system-wide installation, omit `--user` and use `sudo`.
 
 ## Database Schema
 

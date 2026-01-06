@@ -226,7 +226,9 @@ After changing the configuration, remount the filesystem for the changes to take
 
 ## Podman Quadlet
 
-You can run the WebDAV server as a systemd service using Podman Quadlets.
+You can run the WebDAV server as a systemd service using [Podman Quadlets](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html).
+
+See also: `man quadlet` or `man podman-systemd.unit`
 
 ### Build the Image
 
